@@ -24,21 +24,21 @@ educ_tab/sum(educ_tab) * 100 #%
 
 
 #Occupation
-(occu_tab <- table(kap_data$OCUPAC)) #freq
+(occu_tab <- table(kap_data$occupation)) #freq
 occu_tab/sum(occu_tab) * 100 #%
 
 #Annual income
 (income_tab <- table(factor(kap_data$income_annual, 
              levels = c("0-499 USD", "500-999 USD", "1000-4999 USD", "5000+"),
              ordered = TRUE))) #freq
-income_tab/sum(occu_tab) * 100 #%
+income_tab/sum(income_tab) * 100 #%
 
 #People per household
 median(kap_data$num_people_house)
 quantile(kap_data$num_people_house, c(0.25, 0.75))
 
 #Child less than 5 years present
-(child_tab <- table(kap_data$child_present)) #freq
+(child_tab <- table(kap_data$child_present,exclude = "ifany")) #freq
 child_tab/sum(child_tab) * 100 #%
 
 
