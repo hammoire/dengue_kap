@@ -3,11 +3,8 @@
 #Load r packages
 library(tidyverse)
 
-#Import data ensure data file kap_data.csv is saved to you working directory
-# kap_data <- read_excel("input/kap_data.xlsx") %>% 
-#   mutate(high_risk = as.logical(high_risk),
-#          top25 = as.logical(top25),
-#          p_expenses = as.numeric(p_expenses))
+#Import data ensure data file kap_data.rds is saved to you working directory. This file is available in the main directory
+kap_data <- read_rds("~/Desktop/kap_data.rds")
 
 #Variabes required for table 2 
 tab2_var <- {c("sex", "heard_den", "den_lima", "high_risk", 
