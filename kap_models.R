@@ -4,12 +4,10 @@
 library(tidyverse)
 library(ResourceSelection) #Hosmer-Lemeshow test
 
-#Import data ensure data file kap_data.csv is saved to you working directory
-# kap_data <- read_excel("input/kap_data.xlsx") %>% 
-#   mutate(top25 = as.logical(top25))
+#Import data ensure data file kap_data.rds is saved to you working directory. This file is available in the main directory
+kap_data <- read_rds("~/Desktop/kap_data.rds")
 
 #Convert age and education level in years to binary variables
-
 median_age <- median(kap_data$age)
 median_educ_yrs <- median(kap_data$education_level_years)
   
