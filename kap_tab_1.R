@@ -4,7 +4,7 @@
 library(tidyverse)
 
 #Import data ensure data file kap_data.csv is saved to you working directory
-kap_data <- read_csv("~/Desktop/kap_data.csv")
+kap_data <- read_rds("~/Desktop/kap_data.rds")
 
 
 # Create table values -----------------------------------------------------
