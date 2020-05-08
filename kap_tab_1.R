@@ -3,7 +3,7 @@
 #Load libraries
 library(tidyverse)
 
-#Import data ensure data file kap_data.csv is saved to you working directory
+#Import data ensure data file kap_data.rds is saved to you working directory. This file is available in the main directory
 kap_data <- read_rds("~/Desktop/kap_data.rds")
 
 
