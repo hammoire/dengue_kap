@@ -5,12 +5,19 @@ library(tidyverse)
 library(ResourceSelection) #Hosmer-Lemeshow test
 
 #Import data ensure data file kap_data.csv is saved to you working directory
-kap_data <- read_csv("~/Desktop/kap_data.csv")
+# kap_data <- read_excel("input/kap_data.xlsx") %>% 
+#   mutate(top25 = as.logical(top25))
+
+#Convert age and education level in years to binary variables
+
+median_age <- median(kap_data$age)
+median_educ_yrs <- median(kap_data$education_level_years)
+  
 
 #Create final df for modelling
 mod_var <- {c(
   #Independent vars
-  "CODIGO", "age", "sex", "education_level_years",  "high_income",  "child_present", 
+  "CODIGO", "age", "age_bin", "sex", "education_level_years", "education_level_higher", "education_level_years_bin",  "high_income",  "child_present", 
    #Dependent vars
    #Mod 1
    "deng_sympt", 
@@ -24,17 +31,23 @@ mod_var <- {c(
    "control_any",
    #Mod 6 
    "top25")} #select vars needed
-kap_data_mods <- kap_data %>% select(mod_var) %>% 
+kap_data_mods <- kap_data %>% 
+  mutate(age_bin = case_when(age <= median_age ~ "18-40yrs",
+                             TRUE ~ "40yrs+"),
+         education_level_years_bin = case_when(education_level_years <= median_educ_yrs ~ "0-10.5yrs",
+                                 TRUE ~ "10.5+yrs"),
+         education_level_higher = education_level == "higher") %>% 
+  select(mod_var) %>% 
   within(sex <- relevel(factor(sex), ref = "M")) #reset reference for sex
 
 # Knowledge model ---------------------------------------------------------
 #create model list
-model_list <-{ c("deng_sympt ~ age + sex + education_level_years + child_present + high_income",
-                 "mosquito_transmits ~ age + sex + education_level_years + child_present + high_income",
-                 "prev_containers ~  age + sex + education_level_years + child_present + high_income",
-                 "overall_knowledge ~ age + sex + education_level_years + child_present + high_income",
-                 "control_any ~ age + sex + education_level_years + child_present + high_income + overall_knowledge",
-                 "top25 ~ age + sex + education_level_years + child_present + high_income + overall_knowledge")}
+model_list <-{ c("deng_sympt ~ age_bin + sex + education_level_higher + child_present + high_income",
+                 "mosquito_transmits ~ age_bin + sex + education_level_higher + child_present + high_income",
+                 "prev_containers ~  age_bin + sex + education_level_higher + child_present + high_income",
+                 "overall_knowledge ~ age_bin + sex + education_level_higher + child_present + high_income",
+                 "control_any ~ age_bin + sex + education_level_higher + child_present + high_income + overall_knowledge",
+                 "top25 ~ age_bin + sex + education_level_higher + child_present + high_income + overall_knowledge")}
 
 #Function to create model out puts
 kap_mod_summarise <- function(formula_string) {
@@ -49,6 +62,10 @@ kap_mod_summarise <- function(formula_string) {
   HL_temp <- hoslem.test(x = mod$y, y = fitted(mod), g = 10)
   HL_pval <- round(HL_temp$p.value, 2) #Hoslem test
   
+ 
+  vif_max <- round(max(car::vif(mod)),digits = 2) 
+ 
+  
   round(exp(cbind(OR=coef(mod),confint(mod))),2) %>%
     as.data.frame() %>%
     rownames_to_column("independent") %>%
@@ -62,24 +79,18 @@ kap_mod_summarise <- function(formula_string) {
                                  TRUE ~ "  "),
            wald_star_comb = str_c(wald, wald_star),
            OR_star = str_c(OR, wald_star),
-           OR_CI = str_c("OR: ", OR_star, " (CI: ", CI_95, ")"),
+           OR_CI = str_c(OR_star, " (", CI_95, ")"),
            independent = case_when(independent == "EDAD" ~ "age (yrs)",
                                    independent == "SEXOF" ~ "sex (f)",
                                    independent == "NIVEDUC2" ~ "education (yrs)",
                                    independent == "MENOR_DE_EDADTRUE" ~ "child (<5yrs)",
                                    independent == "high_incomeTRUE" ~ "high income",
-                                   TRUE ~ independent)) %>%
-    select(model, independent, OR_CI, wald_star_comb, HL_pval, R2_mcf)
+                                   TRUE ~ independent),
+           vif = vif_max) %>%
+    select(model, independent, OR_CI, wald_star_comb, HL_pval, R2_mcf,vif) %>% 
+    filter(independent != "(Intercept)")
 }
 
 #iterate over models and create summary df
-kap_mod_summary <- map(model_list, kap_mod_summarise) 
-do.call(bind_cols, kap_mod_summary[6:7]) 
-
-(model_1 <- kap_mod_summary[[1]])
-(model_2 <- kap_mod_summary[[2]])
-(model_3 <- kap_mod_summary[[3]])
-(model_4 <- kap_mod_summary[[4]])
-(model_5 <- kap_mod_summary[[5]])
-(model_6 <- kap_mod_summary[[6]])
+kap_mod_summary <- map_df(model_list, kap_mod_summarise) 
 
