@@ -11,13 +11,14 @@ tab2_var <- {c("sex", "heard_den", "den_lima", "high_risk",
   "know_someone_den", "mosquito_transmits", "fever_chills", "head_eye", 
   "malaise_fatigue_apetite", "joint_body", "deng_sympt", "prev_containers", 
   "prev_clean_house", "prev_products", "prev_fumigate", "prev_bednet", 
-  "prev_dispose_waste", "mosq_house_last_year", "mosq_season_summer", 
+  "prev_dispose_waste", "mosq_house_last_year", "biting_hours_night",
+  "biting_hours_day", "mosq_season_summer", 
   "mosq_season_winter", "mosq_season_spring", "mosq_season_autumn", 
   "control_any", "control_products", "control_clean_house", "control_fumigate", "control_swat",
   "control_containers", 
   "products_decide_efficacy", "products_decide_disease", "products_decide_other",
   "products_insec_spray", "products_repel_coil", 
-  "products_bleach", "products_vaporize", "seen_mosq", "cont_nuisance", 
+  "products_bleach", "products_vaporize",  "cont_nuisance", 
   "cont_fear")}
 
 #Create table 2
@@ -48,5 +49,3 @@ tab_2 <- kap_data %>%
   select(question, total, missing, sex_m, num_m_tot, sex_f,num_f_tot, chi_sex_p)
 
 View(tab_2)  
-
-
